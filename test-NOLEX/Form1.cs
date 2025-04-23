@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.SQLite;
+using System.Windows.Forms;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 
 namespace test_NOLEX
@@ -70,23 +71,45 @@ namespace test_NOLEX
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
-            string query = "SELECT * " +
+            string query = "SELECT CodiceMinisteriale, CodiceInterno, DescrizioneEsame  " +
                 "FROM ambulatori, esami, ambulatori_esami " +
                 "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
                 "AND esami.id = ambulatori_esami.esami_id " +
                 "AND ambulatori.nome = @nomeAmbulatorio";
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Items);
+                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     listBox_esami.Items.Clear();
                     while (reader.Read())
                     {
-                        listBox_esami.Items.Add(reader["descrizioneesame"].ToString());
+                        listBox_esami.Items.Add(reader["DescrizioneEsame"].ToString());
+                    }
+                }
+            }
+
+            query = "SELECT descrizione " +
+                "FROM esami, ambulatori_esami, ambulatori, particorpo " +
+                "WHERE esami.id = ambulatori_esami.esami_id " +
+                "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
+                "AND particorpo.id = esami.particorpo_id " +
+                "AND ambulatori.nome = @nomeAmbulatorio";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    listBox_partiCorpo.Items.Clear();
+                    while (reader.Read())
+                    {
+                        listBox_partiCorpo.Items.Add(reader["descrizione"].ToString());
                     }
                 }
             }
         }
+
+        
     }
 }
