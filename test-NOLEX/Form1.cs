@@ -39,6 +39,12 @@ namespace test_NOLEX
                         }
                     }
                 }
+
+                // Seleziona il primo elemento se esiste
+                if (listBox_ambulatori.Items.Count > 0)
+                {
+                    listBox_ambulatori.SelectedIndex = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -71,7 +77,7 @@ namespace test_NOLEX
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
-            string query = "SELECT CodiceMinisteriale, DescrizioneEsame  " +
+            string query = "SELECT CodiceMinisteriale, CodiceInterno, DescrizioneEsame  " +
                 "FROM ambulatori, esami, ambulatori_esami " +
                 "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
                 "AND esami.id = ambulatori_esami.esami_id " +
@@ -81,10 +87,19 @@ namespace test_NOLEX
                 command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    listBox_esami.Items.Clear();
+                    listView_esami.View = View.Details;
+                    listView_esami.Columns.Clear();
+                    listView_esami.Columns.Add("Codice Ministeriale", 100);
+                    listView_esami.Columns.Add("Codice Interno", 100);
+                    listView_esami.Columns.Add("Descrizione Esame", 200);
+
+                    listView_esami.Items.Clear();
                     while (reader.Read())
                     {
-                        listBox_esami.Items.Add(reader["CodiceMinisteriale"].ToString() + ") " + reader["DescrizioneEsame"].ToString());
+                        ListViewItem item = new ListViewItem(reader["CodiceMinisteriale"].ToString());
+                        item.SubItems.Add(reader["CodiceInterno"].ToString());
+                        item.SubItems.Add(reader["DescrizioneEsame"].ToString());
+                        listView_esami.Items.Add(item);
                     }
                 }
             }
@@ -119,7 +134,7 @@ namespace test_NOLEX
                 "AND ambulatori.nome = @nomeAmbulatorio " +
                 "AND particorpo.descrizione = @descrizionePartiCorpo " +
                 "AND esami.particorpo_id = particorpo.id";
-            
+
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
             {
@@ -127,11 +142,95 @@ namespace test_NOLEX
                 command.Parameters.AddWithValue("@descrizionePartiCorpo", listBox_partiCorpo.Text);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    listBox_esami.Items.Clear();
+                    listView_esami.View = View.Details;
+                    listView_esami.Columns.Clear();
+                    listView_esami.Columns.Add("Codice Ministeriale", 100);
+                    listView_esami.Columns.Add("Codice Interno", 100);
+                    listView_esami.Columns.Add("Descrizione Esame", 200);
+
+                    listView_esami.Items.Clear();
                     while (reader.Read())
                     {
-                        listBox_esami.Items.Add(reader["CodiceMinisteriale"].ToString() + ") " + reader["DescrizioneEsame"].ToString());
+                        ListViewItem item = new ListViewItem(reader["CodiceMinisteriale"].ToString());
+                        item.SubItems.Add(reader["CodiceInterno"].ToString());
+                        item.SubItems.Add(reader["DescrizioneEsame"].ToString());
+                        listView_esami.Items.Add(item);
                     }
+                }
+            }
+        }
+
+        private void textBox_filtraCM_TextChanged(object sender, EventArgs e)
+        {
+            string filtro = textBox_filtraCM.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
+            foreach (ListViewItem item in listView_esami.Items)
+            {
+                if (item.SubItems[1].Text.ToLower().Contains(filtro))
+                {
+                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
+                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
+                }
+                else
+                {
+                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
+                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
+                }
+            }
+        }
+
+        private void textBox_filtraCI_TextChanged(object sender, EventArgs e)
+        {
+            string filtro = textBox_filtraCI.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
+            foreach (ListViewItem item in listView_esami.Items)
+            {
+                if (item.SubItems[2].Text.ToLower().Contains(filtro))
+                {
+                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
+                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
+                }
+                else
+                {
+                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
+                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
+                }
+            }
+        }
+
+        private void textBox_filtraDescrizione_TextChanged(object sender, EventArgs e)
+        {
+            string filtro = textBox_filtraDescrizione.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
+            foreach (ListViewItem item in listView_esami.Items)
+            {
+                if (item.SubItems[3].Text.ToLower().Contains(filtro))
+                {
+                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
+                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
+                }
+                else
+                {
+                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
+                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
+                }
+            }
+        }
+
+        private void textBox_filtra_TextChanged(object sender, EventArgs e)
+        {
+            string filtro = textBox_filtra.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
+            foreach (ListViewItem item in listView_esami.Items)
+            {
+                // Controlla se il filtro è presente in uno dei tre campi
+                if (item.SubItems[0].Text.ToLower().Contains(filtro) || // Codice Ministeriale
+                    item.SubItems[1].Text.ToLower().Contains(filtro) || // Codice Interno
+                    item.SubItems[2].Text.ToLower().Contains(filtro))   // Descrizione Esame
+                {
+                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
+                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
+                }
+                else
+                {
+                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
+                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
                 }
             }
         }
