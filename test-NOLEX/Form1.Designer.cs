@@ -59,6 +59,7 @@
             listBox_partiCorpo.Name = "listBox_partiCorpo";
             listBox_partiCorpo.Size = new Size(270, 404);
             listBox_partiCorpo.TabIndex = 1;
+            listBox_partiCorpo.SelectedIndexChanged += listBox_partiCorpo_SelectedIndexChanged;
             // 
             // listBox_esami
             // 

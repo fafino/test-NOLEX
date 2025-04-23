@@ -71,7 +71,7 @@ namespace test_NOLEX
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
-            string query = "SELECT CodiceMinisteriale, CodiceInterno, DescrizioneEsame  " +
+            string query = "SELECT CodiceMinisteriale, DescrizioneEsame  " +
                 "FROM ambulatori, esami, ambulatori_esami " +
                 "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
                 "AND esami.id = ambulatori_esami.esami_id " +
@@ -84,12 +84,12 @@ namespace test_NOLEX
                     listBox_esami.Items.Clear();
                     while (reader.Read())
                     {
-                        listBox_esami.Items.Add(reader["DescrizioneEsame"].ToString());
+                        listBox_esami.Items.Add(reader["CodiceMinisteriale"].ToString() + ") " + reader["DescrizioneEsame"].ToString());
                     }
                 }
             }
 
-            query = "SELECT descrizione " +
+            query = "SELECT distinct(descrizione) " +
                 "FROM esami, ambulatori_esami, ambulatori, particorpo " +
                 "WHERE esami.id = ambulatori_esami.esami_id " +
                 "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
@@ -110,6 +110,30 @@ namespace test_NOLEX
             }
         }
 
-        
+        private void listBox_partiCorpo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string query = "SELECT DescrizioneEsame, CodiceMinisteriale " +
+                "FROM esami, ambulatori_esami, ambulatori, particorpo " +
+                "WHERE esami.id = ambulatori_esami.esami_id " +
+                "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
+                "AND ambulatori.nome = @nomeAmbulatorio " +
+                "AND particorpo.descrizione = @descrizionePartiCorpo " +
+                "AND esami.particorpo_id = particorpo.id";
+            
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
+                command.Parameters.AddWithValue("@descrizionePartiCorpo", listBox_partiCorpo.Text);
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    listBox_esami.Items.Clear();
+                    while (reader.Read())
+                    {
+                        listBox_esami.Items.Add(reader["CodiceMinisteriale"].ToString() + ") " + reader["DescrizioneEsame"].ToString());
+                    }
+                }
+            }
+        }
     }
 }
