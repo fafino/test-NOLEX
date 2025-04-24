@@ -18,40 +18,6 @@ namespace test_NOLEX
             System.Windows.Forms.Application.Exit();
         }
 
-        private void button_DB_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                string connectionString = "Data Source=" + textBox_DB.Text + ";Version=3;";
-                connection = new SQLiteConnection(connectionString);
-                connection.Open();
-                //MessageBox.Show("Connessione al database SQLite riuscita!");
-
-                string query = "SELECT nome FROM ambulatori";
-                using (SQLiteCommand command = new SQLiteCommand(query, connection))
-                {
-                    using (SQLiteDataReader reader = command.ExecuteReader())
-                    {
-                        listBox_ambulatori.Items.Clear();
-                        while (reader.Read())
-                        {
-                            listBox_ambulatori.Items.Add(reader["nome"].ToString());
-                        }
-                    }
-                }
-
-                // Seleziona il primo elemento se esiste
-                if (listBox_ambulatori.Items.Count > 0)
-                {
-                    listBox_ambulatori.SelectedIndex = 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Errore durante la connessione: {ex.Message}");
-            }
-        }
-
         private void button_fileDB_Click(object sender, EventArgs e)
         {
             try
@@ -67,6 +33,27 @@ namespace test_NOLEX
                 {
                     textBox_DB.Text = openFileDialog1.FileName;
                 }
+
+                //collegamento al DB
+                string connectionString = "Data Source=" + textBox_DB.Text + ";Version=3;";
+                connection = new SQLiteConnection(connectionString);
+                connection.Open();
+                //MessageBox.Show("Connessione al database SQLite riuscita!");
+
+                string query = "SELECT nome FROM ambulatori";
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        caricaAmbulatori(reader);
+                    }
+                }
+
+                // Seleziona il primo elemento se esiste
+                if (listBox_ambulatori.Items.Count > 0)
+                {
+                    listBox_ambulatori.SelectedIndex = 0;
+                }
             }
             catch (Exception ex)
             {
@@ -77,6 +64,7 @@ namespace test_NOLEX
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
+            //filtro esami in base all'ambulatorio selezionato
             string query = "SELECT CodiceMinisteriale, CodiceInterno, DescrizioneEsame  " +
                 "FROM ambulatori, esami, ambulatori_esami " +
                 "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
@@ -87,23 +75,11 @@ namespace test_NOLEX
                 command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    listView_esami.View = View.Details;
-                    listView_esami.Columns.Clear();
-                    listView_esami.Columns.Add("Codice Ministeriale", 100);
-                    listView_esami.Columns.Add("Codice Interno", 100);
-                    listView_esami.Columns.Add("Descrizione Esame", 200);
-
-                    listView_esami.Items.Clear();
-                    while (reader.Read())
-                    {
-                        ListViewItem item = new ListViewItem(reader["CodiceMinisteriale"].ToString());
-                        item.SubItems.Add(reader["CodiceInterno"].ToString());
-                        item.SubItems.Add(reader["DescrizioneEsame"].ToString());
-                        listView_esami.Items.Add(item);
-                    }
+                    caricaEsami(reader);
                 }
             }
 
+            //filtro parti corpo in base all'ambulatorio selezionato
             query = "SELECT distinct(descrizione) " +
                 "FROM esami, ambulatori_esami, ambulatori, particorpo " +
                 "WHERE esami.id = ambulatori_esami.esami_id " +
@@ -116,18 +92,14 @@ namespace test_NOLEX
                 command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    listBox_partiCorpo.Items.Clear();
-                    while (reader.Read())
-                    {
-                        listBox_partiCorpo.Items.Add(reader["descrizione"].ToString());
-                    }
+                    caricaPartiDelCorpo(reader);
                 }
             }
         }
 
         private void listBox_partiCorpo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string query = "SELECT DescrizioneEsame, CodiceMinisteriale " +
+            string query = "SELECT DescrizioneEsame, CodiceMinisteriale, CodiceInterno " +
                 "FROM esami, ambulatori_esami, ambulatori, particorpo " +
                 "WHERE esami.id = ambulatori_esami.esami_id " +
                 "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
@@ -142,95 +114,171 @@ namespace test_NOLEX
                 command.Parameters.AddWithValue("@descrizionePartiCorpo", listBox_partiCorpo.Text);
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    listView_esami.View = View.Details;
-                    listView_esami.Columns.Clear();
-                    listView_esami.Columns.Add("Codice Ministeriale", 100);
-                    listView_esami.Columns.Add("Codice Interno", 100);
-                    listView_esami.Columns.Add("Descrizione Esame", 200);
-
-                    listView_esami.Items.Clear();
-                    while (reader.Read())
-                    {
-                        ListViewItem item = new ListViewItem(reader["CodiceMinisteriale"].ToString());
-                        item.SubItems.Add(reader["CodiceInterno"].ToString());
-                        item.SubItems.Add(reader["DescrizioneEsame"].ToString());
-                        listView_esami.Items.Add(item);
-                    }
+                    caricaEsami(reader);
                 }
             }
         }
 
-        private void textBox_filtraCM_TextChanged(object sender, EventArgs e)
+        private void caricaEsami(SQLiteDataReader reader)
         {
-            string filtro = textBox_filtraCM.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
-            foreach (ListViewItem item in listView_esami.Items)
+            listView_esami.View = View.Details;
+            listView_esami.Columns.Clear();
+            listView_esami.Columns.Add("Codice Interno", 100);
+            listView_esami.Columns.Add("Codice Ministeriale", 100);
+            listView_esami.Columns.Add("Descrizione Esame", 200);
+
+            listView_esami.Items.Clear();
+            while (reader.Read())
             {
-                if (item.SubItems[1].Text.ToLower().Contains(filtro))
+                ListViewItem item = new ListViewItem(reader["CodiceInterno"].ToString());
+                item.SubItems.Add(reader["CodiceMinisteriale"].ToString());
+                item.SubItems.Add(reader["DescrizioneEsame"].ToString());
+                listView_esami.Items.Add(item);
+            }
+        }
+
+        private void caricaPartiDelCorpo(SQLiteDataReader reader)
+        {
+            listBox_partiCorpo.Items.Clear();
+            HashSet<string> descrizioniUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
+            while (reader.Read())
+            {
+                string descrizione = reader["descrizione"].ToString();
+                if (descrizioniUnici.Add(descrizione)) // Aggiunge solo se il valore non è già presente
                 {
-                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
-                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
+                    listBox_partiCorpo.Items.Add(descrizione);
                 }
-                else
+            }
+
+        }
+
+        private void caricaAmbulatori(SQLiteDataReader reader)
+        {
+            listBox_ambulatori.Items.Clear();
+            HashSet<string> nomiUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
+
+            while (reader.Read())
+            {
+                string nome = reader["nome"].ToString();
+                if (nomiUnici.Add(nome)) // Aggiunge solo se il valore non è già presente
                 {
-                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
-                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
+                    listBox_ambulatori.Items.Add(nome);
                 }
             }
         }
 
-        private void textBox_filtraCI_TextChanged(object sender, EventArgs e)
+
+        private void textBox_filtraCM_KeyDown(object sender, KeyEventArgs e)
         {
-            string filtro = textBox_filtraCI.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
-            foreach (ListViewItem item in listView_esami.Items)
+            if (e.KeyCode == Keys.Enter)
             {
-                if (item.SubItems[2].Text.ToLower().Contains(filtro))
+                button_filtra_Click(sender, e);
+            }
+        }
+
+        private void textBox_filtraCI_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                button_filtra_Click(sender, e);
+            }
+        }
+
+        private void textBox_filtraDescrizione_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                button_filtra_Click(sender, e);
+            }
+        }
+
+        private void button_filtroReset_Click(object sender, EventArgs e)
+        {
+            textBox_filtraCI.Text = "";
+            textBox_filtraCM.Text = "";
+            textBox_filtraDescrizione.Text = "";
+
+            string query = "SELECT * " +
+                "FROM esami ";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
-                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
-                }
-                else
-                {
-                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
-                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
+                    caricaEsami(reader);
                 }
             }
         }
 
-        private void textBox_filtraDescrizione_TextChanged(object sender, EventArgs e)
+        private void listView_esami_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            string filtro = textBox_filtraDescrizione.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
-            foreach (ListViewItem item in listView_esami.Items)
-            {
-                if (item.SubItems[3].Text.ToLower().Contains(filtro))
-                {
-                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
-                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
-                }
-                else
-                {
-                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
-                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
-                }
-            }
+
         }
 
-        private void textBox_filtra_TextChanged(object sender, EventArgs e)
+        private string CreaQuery()
         {
-            string filtro = textBox_filtra.Text.ToLower(); // Ottieni il valore del filtro in minuscolo
-            foreach (ListViewItem item in listView_esami.Items)
+            string query = "SELECT CodiceInterno, CodiceMinisteriale, DescrizioneEsame,   ambulatori.nome, particorpo.descrizione " +
+                "FROM esami, ambulatori_esami, ambulatori, particorpo " +
+                "WHERE esami.id = ambulatori_esami.esami_id " +
+                "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
+                "AND esami.particorpo_id = particorpo.id ";
+            if (listBox_ambulatori.SelectedItem != null)
             {
-                // Controlla se il filtro è presente in uno dei tre campi
-                if (item.SubItems[0].Text.ToLower().Contains(filtro) || // Codice Ministeriale
-                    item.SubItems[1].Text.ToLower().Contains(filtro) || // Codice Interno
-                    item.SubItems[2].Text.ToLower().Contains(filtro))   // Descrizione Esame
+                string nomeAmbulatorio = listBox_ambulatori.SelectedItem.ToString();
+                query += "AND ambulatori.nome = '" + nomeAmbulatorio + "' ";
+            }
+            if (listBox_partiCorpo.SelectedItem != null) { 
+                string descrizionePartiCorpo = listBox_partiCorpo.SelectedItem.ToString();
+                query += "AND particorpo.descrizione = '" + descrizionePartiCorpo + "' "; 
+            }
+            if (listView_esami.SelectedItems.Count > 0)
+            {
+                ListViewItem selectedItem = listView_esami.SelectedItems[0];
+                string codiceInterno = selectedItem.SubItems[0].Text;
+                query += "AND esami.CodiceInterno = '" + codiceInterno + "' ";
+            }
+                       
+
+            if (textBox_filtraCI.Text != "")
+            {
+                query += "AND LOWER(esami.CodiceInterno) LIKE '%' || LOWER(@filtroCodiceInterno) || '%' ";
+            }
+            if (textBox_filtraCM.Text != "")
+            {
+                query += "AND LOWER(esami.CodiceMinisteriale) LIKE '%' || LOWER(@filtroCodiceMinisteriale) || '%' ";
+            }
+            if (textBox_filtraDescrizione.Text != "")
+            {
+                query += "AND LOWER(esami.DescrizioneEsame) LIKE '%' || LOWER(@filtroDescrizioneEsame) || '%' ";
+            }
+            return query;
+        }
+
+        private void button_filtra_Click(object sender, EventArgs e)
+        {
+            string query = CreaQuery();
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@filtroCodiceInterno", textBox_filtraCI.Text);
+                command.Parameters.AddWithValue("@filtroCodiceMinisteriale", textBox_filtraCM.Text);
+                command.Parameters.AddWithValue("@filtroDescrizioneEsame", textBox_filtraDescrizione.Text);
+                // Primo ciclo: carica esami
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    item.BackColor = SystemColors.Window; // Mostra l'elemento (colore di sfondo normale)
-                    item.ForeColor = SystemColors.ControlText; // Colore del testo normale
+                    caricaEsami(reader);
                 }
-                else
+
+                // Secondo ciclo: carica ambulatori
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    item.BackColor = SystemColors.Control; // Nascondi l'elemento (colore di sfondo diverso)
-                    item.ForeColor = SystemColors.Control; // Colore del testo uguale allo sfondo
+                    caricaAmbulatori(reader);
+                }
+
+                // Terzo ciclo: carica parti del corpo
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    caricaPartiDelCorpo(reader);
                 }
             }
         }
