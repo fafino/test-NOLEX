@@ -80,7 +80,7 @@ namespace test_NOLEX
                 connection.Open();
                 //MessageBox.Show("Connessione al database SQLite riuscita!");
 
-                string query = "SELECT nome FROM ambulatori";                
+                string query = "SELECT nome FROM ambulatori";
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {                    
                     using (SqlDataReader reader = command.ExecuteReader())
@@ -281,15 +281,18 @@ namespace test_NOLEX
 
             if (textBox_filtraCI.Text != "")
             {
-                query += "AND LOWER(esami.CodiceInterno) LIKE '%' || LOWER(@filtroCodiceInterno) || '%' ";
+                //query += "AND LOWER(esami.CodiceInterno) LIKE '%' || LOWER(@filtroCodiceInterno) || '%' ";
+                query += "AND CodiceInterno LIKE '%' + @filtroCodiceInterno + '%' ";
             }
             if (textBox_filtraCM.Text != "")
             {
-                query += "AND LOWER(esami.CodiceMinisteriale) LIKE '%' || LOWER(@filtroCodiceMinisteriale) || '%' ";
+                //query += "AND LOWER(esami.CodiceMinisteriale) LIKE '%' || LOWER(@filtroCodiceMinisteriale) || '%' ";
+                query += "AND CodiceMinisteriale LIKE '%' + @filtroCodiceMinisteriale + '%' ";
             }
             if (textBox_filtraDescrizione.Text != "")
             {
-                query += "AND LOWER(esami.DescrizioneEsame) LIKE '%' || LOWER(@filtroDescrizioneEsame) || '%' ";
+                //query += "AND LOWER(esami.DescrizioneEsame) LIKE '%' || LOWER(@filtroDescrizioneEsame) || '%' ";
+                query += "AND DescrizioneEsame LIKE '%' + @filtroDescrizioneEsame + '%' ";
             }
             return query;
         }
@@ -306,20 +309,42 @@ namespace test_NOLEX
                 // Primo ciclo: carica esami
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    caricaEsami(reader);
+                    listView_esami.View = View.Details;
+                    listView_esami.Columns.Clear();
+                    listView_esami.Columns.Add("Codice Interno", 100);
+                    listView_esami.Columns.Add("Codice Ministeriale", 100);
+                    listView_esami.Columns.Add("Descrizione Esame", 200);
+
+                    listView_esami.Items.Clear();
+
+                    listBox_ambulatori.Items.Clear();
+                    HashSet<string> nomiUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
+
+                    listBox_partiCorpo.Items.Clear();
+                    HashSet<string> descrizioniUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
+
+                    while (reader.Read())
+                    {
+                        ListViewItem item = new ListViewItem(reader["CodiceInterno"].ToString());
+                        item.SubItems.Add(reader["CodiceMinisteriale"].ToString());
+                        item.SubItems.Add(reader["DescrizioneEsame"].ToString());
+                        listView_esami.Items.Add(item);
+
+
+                        string nome = reader["nome"].ToString();
+                        if (nomiUnici.Add(nome)) // Aggiunge solo se il valore non è già presente
+                        {
+                            listBox_ambulatori.Items.Add(nome);
+                        }
+
+                                                string descrizione = reader["descrizione"].ToString();
+                        if (descrizioniUnici.Add(descrizione)) // Aggiunge solo se il valore non è già presente
+                        {
+                            listBox_partiCorpo.Items.Add(descrizione);
+                        }
+                    }
                 }
 
-                // Secondo ciclo: carica ambulatori
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    caricaAmbulatori(reader);
-                }
-
-                // Terzo ciclo: carica parti del corpo
-                using (SqlDataReader reader = command.ExecuteReader())
-                {
-                    caricaPartiDelCorpo(reader);
-                }
             }
         }
 
