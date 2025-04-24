@@ -1,7 +1,7 @@
 ﻿using System.Data.SqlClient;
 SQLiteCommand SqlCommand
 SQLiteDataReader SqlDataReader
-
+SQLiteConnection SqlConnection 
 
 Salve,
 Per proseguire la fase del colloquio tecnico La vorremmo sottoporre ad un breve test di programmazione.
