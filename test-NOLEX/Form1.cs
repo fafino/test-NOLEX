@@ -1,5 +1,6 @@
 using System.Data;
 using System.Data.SQLite;
+using System.Data.SqlClient;
 using System.Windows.Forms;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
 
@@ -7,7 +8,8 @@ namespace test_NOLEX
 {
     public partial class FormMain : Form
     {
-        SQLiteConnection connection;
+        //SQLiteConnection connection;
+        SqlConnection connection;
         public FormMain()
         {
             InitializeComponent();
@@ -35,15 +37,20 @@ namespace test_NOLEX
                 }
 
                 //collegamento al DB
-                string connectionString = "Data Source=" + textBox_DB.Text + ";Version=3;";
-                connection = new SQLiteConnection(connectionString);
+                //string connectionString = "Data Source=" + textBox_DB.Text + ";Version=3;";
+                //connection = new SQLiteConnection(connectionString);
+                string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=nolexDB;Trusted_Connection=True;";
+                connection = new SqlConnection(connectionString);
+
                 connection.Open();
                 //MessageBox.Show("Connessione al database SQLite riuscita!");
 
                 string query = "SELECT nome FROM ambulatori";
-                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                //using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    //using (SQLiteDataReader reader = command.ExecuteReader())
+                    using (SqlDataReader reader = command.ExecuteReader())
                     {
                         caricaAmbulatori(reader);
                     }
@@ -62,6 +69,38 @@ namespace test_NOLEX
 
         }
 
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                
+                string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=nolexDB;Trusted_Connection=True;";
+                connection = new SqlConnection(connectionString);
+
+                connection.Open();
+                //MessageBox.Show("Connessione al database SQLite riuscita!");
+
+                string query = "SELECT nome FROM ambulatori";                
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {                    
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        caricaAmbulatori(reader);
+                    }
+                }
+
+                // Seleziona il primo elemento se esiste
+                if (listBox_ambulatori.Items.Count > 0)
+                {
+                    listBox_ambulatori.SelectedIndex = 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Errore durante la selezione del file: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
             //filtro esami in base all'ambulatorio selezionato
@@ -70,10 +109,10 @@ namespace test_NOLEX
                 "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
                 "AND esami.id = ambulatori_esami.esami_id " +
                 "AND ambulatori.nome = @nomeAmbulatorio";
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaEsami(reader);
                 }
@@ -87,10 +126,10 @@ namespace test_NOLEX
                 "AND particorpo.id = esami.particorpo_id " +
                 "AND ambulatori.nome = @nomeAmbulatorio";
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaPartiDelCorpo(reader);
                 }
@@ -108,18 +147,18 @@ namespace test_NOLEX
                 "AND esami.particorpo_id = particorpo.id";
 
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
                 command.Parameters.AddWithValue("@descrizionePartiCorpo", listBox_partiCorpo.Text);
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaEsami(reader);
                 }
             }
         }
 
-        private void caricaEsami(SQLiteDataReader reader)
+        private void caricaEsami(SqlDataReader reader)
         {
             listView_esami.View = View.Details;
             listView_esami.Columns.Clear();
@@ -137,7 +176,7 @@ namespace test_NOLEX
             }
         }
 
-        private void caricaPartiDelCorpo(SQLiteDataReader reader)
+        private void caricaPartiDelCorpo(SqlDataReader reader)
         {
             listBox_partiCorpo.Items.Clear();
             HashSet<string> descrizioniUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
@@ -152,7 +191,7 @@ namespace test_NOLEX
 
         }
 
-        private void caricaAmbulatori(SQLiteDataReader reader)
+        private void caricaAmbulatori(SqlDataReader reader)
         {
             listBox_ambulatori.Items.Clear();
             HashSet<string> nomiUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
@@ -201,9 +240,9 @@ namespace test_NOLEX
             string query = "SELECT * " +
                 "FROM esami ";
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaEsami(reader);
                 }
@@ -227,9 +266,10 @@ namespace test_NOLEX
                 string nomeAmbulatorio = listBox_ambulatori.SelectedItem.ToString();
                 query += "AND ambulatori.nome = '" + nomeAmbulatorio + "' ";
             }
-            if (listBox_partiCorpo.SelectedItem != null) { 
+            if (listBox_partiCorpo.SelectedItem != null)
+            {
                 string descrizionePartiCorpo = listBox_partiCorpo.SelectedItem.ToString();
-                query += "AND particorpo.descrizione = '" + descrizionePartiCorpo + "' "; 
+                query += "AND particorpo.descrizione = '" + descrizionePartiCorpo + "' ";
             }
             if (listView_esami.SelectedItems.Count > 0)
             {
@@ -237,7 +277,7 @@ namespace test_NOLEX
                 string codiceInterno = selectedItem.SubItems[0].Text;
                 query += "AND esami.CodiceInterno = '" + codiceInterno + "' ";
             }
-                       
+
 
             if (textBox_filtraCI.Text != "")
             {
@@ -258,29 +298,31 @@ namespace test_NOLEX
         {
             string query = CreaQuery();
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@filtroCodiceInterno", textBox_filtraCI.Text);
                 command.Parameters.AddWithValue("@filtroCodiceMinisteriale", textBox_filtraCM.Text);
                 command.Parameters.AddWithValue("@filtroDescrizioneEsame", textBox_filtraDescrizione.Text);
                 // Primo ciclo: carica esami
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaEsami(reader);
                 }
 
                 // Secondo ciclo: carica ambulatori
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaAmbulatori(reader);
                 }
 
                 // Terzo ciclo: carica parti del corpo
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
                     caricaPartiDelCorpo(reader);
                 }
             }
         }
+
+
     }
 }

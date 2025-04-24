@@ -269,6 +269,7 @@
             Controls.Add(listBox_ambulatori);
             Name = "FormMain";
             Text = "Test NOLEX";
+            Load += FormMain_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ResumeLayout(false);

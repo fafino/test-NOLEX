@@ -1,4 +1,8 @@
-﻿
+﻿using System.Data.SqlClient;
+SQLiteCommand SqlCommand
+SQLiteDataReader SqlDataReader
+
+
 Salve,
 Per proseguire la fase del colloquio tecnico La vorremmo sottoporre ad un breve test di programmazione.
 Per qualsiasi domanda tecnica può rispondere a questa email.
