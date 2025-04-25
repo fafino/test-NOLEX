@@ -45,9 +45,9 @@ namespace test_NOLEX
                 //MessageBox.Show("Connessione al database SQLite riuscita!");
 
 
-                button_filtra_Click(sender, e);
+                //button_filtra_Click(sender, e);
 
-                //caricaeSelezionaAmbulatorio(sender, e);
+                caricaeSelezionaAmbulatorio(sender, e);
                
             }
             catch (Exception ex)
@@ -113,62 +113,66 @@ namespace test_NOLEX
         }
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
-        {            
-            //filtro esami in base all'ambulatorio selezionato
-            string query = "SELECT CodiceMinisteriale, CodiceInterno, DescrizioneEsame  " +
-                "FROM ambulatori, esami, ambulatori_esami " +
-                "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
-                "AND esami.id = ambulatori_esami.esami_id " +
-                "AND ambulatori.nome = @nomeAmbulatorio ";
-            query = aggiungiFiltriEsami(query);
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            if (listBox_ambulatori.Text != "")
             {
-                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                //filtro esami in base all'ambulatorio selezionato
+                string query = "SELECT CodiceMinisteriale, CodiceInterno, DescrizioneEsame  " +
+                    "FROM ambulatori, esami, ambulatori_esami " +
+                    "WHERE ambulatori.id = ambulatori_esami.ambulatori_id " +
+                    "AND esami.id = ambulatori_esami.esami_id " +
+                    "AND ambulatori.nome = @nomeAmbulatorio ";
+                query = aggiungiFiltriEsami(query);
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
                 {
-                    caricaEsami(reader);
+                    command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        caricaEsami(reader);
+                    }
+                }
+
+                //filtro parti corpo in base all'ambulatorio selezionato
+                query = "SELECT distinct(descrizione) " +
+                    "FROM esami, ambulatori_esami, ambulatori, particorpo " +
+                    "WHERE esami.id = ambulatori_esami.esami_id " +
+                    "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
+                    "AND particorpo.id = esami.particorpo_id " +
+                    "AND ambulatori.nome = @nomeAmbulatorio ";
+                query = aggiungiFiltriEsami(query);
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        caricaPartiDelCorpo(reader);
+                    }
                 }
             }
-
-            //filtro parti corpo in base all'ambulatorio selezionato
-            query = "SELECT distinct(descrizione) " +
-                "FROM esami, ambulatori_esami, ambulatori, particorpo " +
-                "WHERE esami.id = ambulatori_esami.esami_id " +
-                "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
-                "AND particorpo.id = esami.particorpo_id " +
-                "AND ambulatori.nome = @nomeAmbulatorio";
-            query = aggiungiFiltriEsami(query);
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    caricaPartiDelCorpo(reader);
-                }
-            }
-            
-
         }
 
         private void listBox_partiCorpo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string query = "SELECT DescrizioneEsame, CodiceMinisteriale, CodiceInterno " +
-                "FROM esami, ambulatori_esami, ambulatori, particorpo " +
-                "WHERE esami.id = ambulatori_esami.esami_id " +
-                "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
-                "AND ambulatori.nome = @nomeAmbulatorio " +
-                "AND particorpo.descrizione = @descrizionePartiCorpo " +
-                "AND esami.particorpo_id = particorpo.id";
-            query = aggiungiFiltriEsami(query);
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            if ((listBox_ambulatori.Text != "") && (listBox_partiCorpo.Text != ""))
             {
-                command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
-                command.Parameters.AddWithValue("@descrizionePartiCorpo", listBox_partiCorpo.Text);
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                string query = "SELECT DescrizioneEsame, CodiceMinisteriale, CodiceInterno " +
+                    "FROM esami, ambulatori_esami, ambulatori, particorpo " +
+                    "WHERE esami.id = ambulatori_esami.esami_id " +
+                    "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
+                    "AND ambulatori.nome = @nomeAmbulatorio " +
+                    "AND particorpo.descrizione = @descrizionePartiCorpo " +
+                    "AND esami.particorpo_id = particorpo.id ";
+                query = aggiungiFiltriEsami(query);
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
                 {
-                    caricaEsami(reader);
+                    command.Parameters.AddWithValue("@nomeAmbulatorio", listBox_ambulatori.Text);
+                    command.Parameters.AddWithValue("@descrizionePartiCorpo", listBox_partiCorpo.Text);
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        caricaEsami(reader);
+                    }
                 }
             }
         }
@@ -266,10 +270,13 @@ namespace test_NOLEX
 
         private void listView_esami_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
+            //deseleziono ambulatorio e parti del corpo altrimenti fanno parte del filtro
+            listBox_ambulatori.ClearSelected();
+            listBox_partiCorpo.ClearSelected();
             button_filtra_Click(sender, e);
         }
 
-        private string filtroCodiceInternoCreaQuery()
+        private string CreaQuery()
         {
             string query = "SELECT CodiceInterno, CodiceMinisteriale, DescrizioneEsame, ambulatori.nome, particorpo.descrizione " +
                 "FROM esami, ambulatori_esami, ambulatori, particorpo " +
