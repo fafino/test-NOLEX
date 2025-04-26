@@ -48,7 +48,7 @@ namespace test_NOLEX
                 //button_filtra_Click(sender, e);
 
                 caricaeSelezionaAmbulatorio(sender, e);
-               
+
             }
             catch (Exception ex)
             {
@@ -106,7 +106,7 @@ namespace test_NOLEX
             }
             if (textBox_filtraDescrizione.Text != "")
             {
-                query += "AND LOWER(esami.DescrizioneEsame) LIKE '%' || LOWER('" + textBox_filtraDescrizione.Text  + "') || '%' ";
+                query += "AND LOWER(esami.DescrizioneEsame) LIKE '%' || LOWER('" + textBox_filtraDescrizione.Text + "') || '%' ";
                 //query += "AND DescrizioneEsame LIKE '%' + @filtroDescrizioneEsame + '%' ";
             }
             return query;
@@ -301,7 +301,7 @@ namespace test_NOLEX
             }
 
             query = aggiungiFiltriEsami(query);
-            
+
             return query;
         }
 
@@ -383,5 +383,64 @@ namespace test_NOLEX
             }
         }
 
+        private void button_prenotaEsame_Click(object sender, EventArgs e)
+        {
+            if (listBox_ambulatori.Text != "")
+            {
+                foreach (ListViewItem item in listView_esami.Items)
+                {
+                    if (item.Checked) // Controlla se il checkbox è selezionato
+                    {
+                        // Aggiungi una nuova riga alla DataGridView con i dati della ListView
+                        dataGridView_prenotazioni.Rows.Add(
+                            listBox_ambulatori.Text + " - " + item.SubItems[0].Text + "." + item.SubItems[1].Text + "." + item.SubItems[2].Text);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show($"Devi selezionare un Ambulatorio", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void dataGridView_prenotazioni_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView_prenotazioni.Columns["Cancella"].Index)
+            {
+                // Conferma la cancellazione
+                var result = MessageBox.Show("Sei sicuro di voler cancellare questa prenotazione?", "Conferma", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result == DialogResult.Yes)
+                {
+                    // Rimuovi la riga selezionata
+                    dataGridView_prenotazioni.Rows.RemoveAt(e.RowIndex);
+                }
+            }
+            else if(e.RowIndex >= 0 && e.ColumnIndex == dataGridView_prenotazioni.Columns["Modifica"].Index)
+            {
+                if (listBox_ambulatori.Text != "")
+                {
+                    // Controlla se almeno un elemento della ListView ha il checkbox selezionato
+                    int esamiSelezionati = 0;
+                    foreach (ListViewItem item in listView_esami.Items)
+                    {
+                        if (item.Checked)
+                        {
+                            esamiSelezionati++;
+                        }
+                    }
+                    if (esamiSelezionati == 1) {
+                        // Modifica la cancellazione
+                        dataGridView_prenotazioni.Rows[e.RowIndex].Cells["label"].Value =
+                            listBox_ambulatori.Text + " - " + listView_esami.Items[0].SubItems[0].Text + "." + listView_esami.Items[0].SubItems[1].Text + "." + listView_esami.Items[0].SubItems[2].Text;
+                    } else
+                    {
+                        MessageBox.Show($"Devi selezionare un Esame", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                } else
+                {
+                    MessageBox.Show($"Devi selezionare un Ambulatorio", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
     }
 }

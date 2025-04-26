@@ -34,7 +34,7 @@
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
-            button_confermaEsame = new Button();
+            button_prenotaEsame = new Button();
             label4 = new Label();
             textBox_DB = new TextBox();
             button1 = new Button();
@@ -44,7 +44,6 @@
             CodiceInterno = new ColumnHeader();
             DescrizioneEsame = new ColumnHeader();
             groupBox1 = new GroupBox();
-            button_resetAmbulatori = new Button();
             button_filtroReset = new Button();
             button_filtraDescrizione = new Button();
             label7 = new Label();
@@ -53,7 +52,13 @@
             textBox_filtraDescrizione = new TextBox();
             textBox_filtraCI = new TextBox();
             textBox_filtraCM = new TextBox();
+            button_resetAmbulatori = new Button();
+            dataGridView_prenotazioni = new DataGridView();
+            label = new DataGridViewTextBoxColumn();
+            Cancella = new DataGridViewImageColumn();
+            Modifica = new DataGridViewImageColumn();
             groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridView_prenotazioni).BeginInit();
             SuspendLayout();
             // 
             // listBox_ambulatori
@@ -62,23 +67,23 @@
             listBox_ambulatori.Location = new Point(10, 68);
             listBox_ambulatori.Margin = new Padding(3, 2, 3, 2);
             listBox_ambulatori.Name = "listBox_ambulatori";
-            listBox_ambulatori.Size = new Size(201, 334);
+            listBox_ambulatori.Size = new Size(243, 334);
             listBox_ambulatori.TabIndex = 0;
             listBox_ambulatori.SelectedValueChanged += listBox_ambulatori_SelectedValueChanged;
             // 
             // listBox_partiCorpo
             // 
             listBox_partiCorpo.FormattingEnabled = true;
-            listBox_partiCorpo.Location = new Point(216, 68);
+            listBox_partiCorpo.Location = new Point(259, 68);
             listBox_partiCorpo.Margin = new Padding(3, 2, 3, 2);
             listBox_partiCorpo.Name = "listBox_partiCorpo";
-            listBox_partiCorpo.Size = new Size(237, 334);
+            listBox_partiCorpo.Size = new Size(305, 334);
             listBox_partiCorpo.TabIndex = 1;
             listBox_partiCorpo.SelectedIndexChanged += listBox_partiCorpo_SelectedIndexChanged;
             // 
             // buttonChiudi
             // 
-            buttonChiudi.Location = new Point(643, 438);
+            buttonChiudi.Location = new Point(992, 673);
             buttonChiudi.Margin = new Padding(3, 2, 3, 2);
             buttonChiudi.Name = "buttonChiudi";
             buttonChiudi.Size = new Size(82, 22);
@@ -91,7 +96,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label1.Location = new Point(74, 44);
+            label1.Location = new Point(10, 44);
             label1.Name = "label1";
             label1.Size = new Size(69, 15);
             label1.TabIndex = 5;
@@ -101,7 +106,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label2.Location = new Point(290, 44);
+            label2.Location = new Point(259, 44);
             label2.Name = "label2";
             label2.Size = new Size(89, 15);
             label2.TabIndex = 6;
@@ -111,21 +116,22 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label3.Location = new Point(634, 44);
+            label3.Location = new Point(570, 44);
             label3.Name = "label3";
             label3.Size = new Size(38, 15);
             label3.TabIndex = 7;
             label3.Text = "Esami";
             // 
-            // button_confermaEsame
+            // button_prenotaEsame
             // 
-            button_confermaEsame.Location = new Point(458, 405);
-            button_confermaEsame.Margin = new Padding(3, 2, 3, 2);
-            button_confermaEsame.Name = "button_confermaEsame";
-            button_confermaEsame.Size = new Size(438, 22);
-            button_confermaEsame.TabIndex = 8;
-            button_confermaEsame.Text = "Conferma Esame";
-            button_confermaEsame.UseVisualStyleBackColor = true;
+            button_prenotaEsame.Location = new Point(570, 415);
+            button_prenotaEsame.Margin = new Padding(3, 2, 3, 2);
+            button_prenotaEsame.Name = "button_prenotaEsame";
+            button_prenotaEsame.Size = new Size(504, 22);
+            button_prenotaEsame.TabIndex = 8;
+            button_prenotaEsame.Text = "Prenota Esame";
+            button_prenotaEsame.UseVisualStyleBackColor = true;
+            button_prenotaEsame.Click += button_prenotaEsame_Click;
             // 
             // label4
             // 
@@ -141,12 +147,12 @@
             textBox_DB.Location = new Point(194, 9);
             textBox_DB.Margin = new Padding(3, 2, 3, 2);
             textBox_DB.Name = "textBox_DB";
-            textBox_DB.Size = new Size(601, 23);
+            textBox_DB.Size = new Size(697, 23);
             textBox_DB.TabIndex = 10;
             // 
             // button1
             // 
-            button1.Location = new Point(801, 11);
+            button1.Location = new Point(897, 11);
             button1.Margin = new Padding(3, 2, 3, 2);
             button1.Name = "button1";
             button1.Size = new Size(35, 22);
@@ -161,18 +167,18 @@
             // 
             // listView_esami
             // 
+            listView_esami.CheckBoxes = true;
             listView_esami.Columns.AddRange(new ColumnHeader[] { CodiceMinisteriale, CodiceInterno, DescrizioneEsame });
-            listView_esami.Location = new Point(470, 68);
+            listView_esami.Location = new Point(570, 68);
             listView_esami.Margin = new Padding(3, 2, 3, 2);
             listView_esami.Name = "listView_esami";
-            listView_esami.Size = new Size(362, 334);
+            listView_esami.Size = new Size(504, 334);
             listView_esami.TabIndex = 12;
             listView_esami.UseCompatibleStateImageBehavior = false;
             listView_esami.ItemSelectionChanged += listView_esami_ItemSelectionChanged;
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(button_resetAmbulatori);
             groupBox1.Controls.Add(button_filtroReset);
             groupBox1.Controls.Add(button_filtraDescrizione);
             groupBox1.Controls.Add(label7);
@@ -181,29 +187,18 @@
             groupBox1.Controls.Add(textBox_filtraDescrizione);
             groupBox1.Controls.Add(textBox_filtraCI);
             groupBox1.Controls.Add(textBox_filtraCM);
-            groupBox1.Location = new Point(849, 68);
+            groupBox1.Location = new Point(259, 415);
             groupBox1.Margin = new Padding(3, 2, 3, 2);
             groupBox1.Name = "groupBox1";
             groupBox1.Padding = new Padding(3, 2, 3, 2);
-            groupBox1.Size = new Size(304, 333);
+            groupBox1.Size = new Size(304, 238);
             groupBox1.TabIndex = 18;
             groupBox1.TabStop = false;
             groupBox1.Text = "Filtra Esami";
             // 
-            // button_resetAmbulatori
-            // 
-            button_resetAmbulatori.Location = new Point(139, 199);
-            button_resetAmbulatori.Margin = new Padding(3, 2, 3, 2);
-            button_resetAmbulatori.Name = "button_resetAmbulatori";
-            button_resetAmbulatori.Size = new Size(151, 22);
-            button_resetAmbulatori.TabIndex = 30;
-            button_resetAmbulatori.Text = "Vedi Tutti gli Ambulatori";
-            button_resetAmbulatori.UseVisualStyleBackColor = true;
-            button_resetAmbulatori.Click += button_resetAmbulatori_Click;
-            // 
             // button_filtroReset
             // 
-            button_filtroReset.Location = new Point(139, 173);
+            button_filtroReset.Location = new Point(139, 164);
             button_filtroReset.Margin = new Padding(3, 2, 3, 2);
             button_filtroReset.Name = "button_filtroReset";
             button_filtroReset.Size = new Size(151, 22);
@@ -277,17 +272,63 @@
             textBox_filtraCM.TabIndex = 17;
             textBox_filtraCM.KeyDown += textBox_filtraCM_KeyDown;
             // 
+            // button_resetAmbulatori
+            // 
+            button_resetAmbulatori.Location = new Point(13, 415);
+            button_resetAmbulatori.Margin = new Padding(3, 2, 3, 2);
+            button_resetAmbulatori.Name = "button_resetAmbulatori";
+            button_resetAmbulatori.Size = new Size(243, 22);
+            button_resetAmbulatori.TabIndex = 31;
+            button_resetAmbulatori.Text = "Vedi Tutti gli Ambulatori";
+            button_resetAmbulatori.UseVisualStyleBackColor = true;
+            // 
+            // dataGridView_prenotazioni
+            // 
+            dataGridView_prenotazioni.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView_prenotazioni.Columns.AddRange(new DataGridViewColumn[] { label, Cancella, Modifica });
+            dataGridView_prenotazioni.Location = new Point(570, 442);
+            dataGridView_prenotazioni.Name = "dataGridView_prenotazioni";
+            dataGridView_prenotazioni.Size = new Size(504, 211);
+            dataGridView_prenotazioni.TabIndex = 32;
+            dataGridView_prenotazioni.CellClick += dataGridView_prenotazioni_CellClick;
+            // 
+            // label
+            // 
+            label.HeaderText = "Prenotazione";
+            label.Name = "label";
+            label.Width = 350;
+            // 
+            // Cancella
+            // 
+            Cancella.Description = "Cancella Prenotazione";
+            Cancella.HeaderText = "Canc.";
+            Cancella.Image = Properties.Resources.x_mark_16;
+            Cancella.Name = "Cancella";
+            Cancella.ToolTipText = "Cancella Prenotazione";
+            Cancella.Width = 40;
+            // 
+            // Modifica
+            // 
+            Modifica.Description = "Modifica Prenotazione";
+            Modifica.HeaderText = "Mod.";
+            Modifica.Image = Properties.Resources.edit_2_16;
+            Modifica.Name = "Modifica";
+            Modifica.ToolTipText = "Modifica Prenotazione";
+            Modifica.Width = 40;
+            // 
             // FormMain
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1170, 469);
+            ClientSize = new Size(1086, 716);
+            Controls.Add(dataGridView_prenotazioni);
+            Controls.Add(button_resetAmbulatori);
             Controls.Add(groupBox1);
             Controls.Add(listView_esami);
             Controls.Add(button1);
             Controls.Add(textBox_DB);
             Controls.Add(label4);
-            Controls.Add(button_confermaEsame);
+            Controls.Add(button_prenotaEsame);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
@@ -300,6 +341,7 @@
             Load += FormMain_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridView_prenotazioni).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -312,7 +354,7 @@
         private Label label1;
         private Label label2;
         private Label label3;
-        private Button button_confermaEsame;
+        private Button button_prenotaEsame;
         private Label label4;
         private TextBox textBox_DB;
         private Button button1;
@@ -331,5 +373,9 @@
         private Button button_filtraDescrizione;
         private Button button_filtroReset;
         private Button button_resetAmbulatori;
+        private DataGridView dataGridView_prenotazioni;
+        private DataGridViewTextBoxColumn label;
+        private DataGridViewImageColumn Cancella;
+        private DataGridViewImageColumn Modifica;
     }
 }
