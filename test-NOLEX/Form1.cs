@@ -3,9 +3,12 @@ using System.Data.SQLite;
 using System.Data.SqlClient;
 using System.Windows.Forms;
 using static System.ComponentModel.Design.ObjectSelectorEditor;
+using Serilog;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 
 namespace test_NOLEX
 {
+
     public partial class FormMain : Form
     {
         SQLiteConnection connection;
@@ -13,6 +16,39 @@ namespace test_NOLEX
         public FormMain()
         {
             InitializeComponent();
+
+            // Inizializza il logger
+            Log.Logger = new LoggerConfiguration()
+                //.MinimumLevel.Debug()
+                //.WriteTo.Console()
+                .WriteTo.File("test_NOLEX.log", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+        }
+
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+            //collegamento al DB
+            string connectionString = "Data Source=" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "database.sqlite") + ";Version=3;";
+            //string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=nolexDB;Trusted_Connection=True;";
+            connection = new SQLiteConnection(connectionString);
+
+            connection.Open();
+            //MessageBox.Show("Connessione al database SQLite riuscita!");
+            //button_filtra_Click(sender, e);
+
+            caricaeSelezionaAmbulatorio(sender, e);
+
+
+            //Carica file config.ini
+            string iniFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+            if (IniFile.LoadIniFile(iniFilePath))
+            {             
+                //MessageBox.Show("File di configurazione caricato correttamente.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Errore nel caricamento del file di configurazione.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void buttonChiudi_Click(object sender, EventArgs e)
@@ -20,79 +56,9 @@ namespace test_NOLEX
             System.Windows.Forms.Application.Exit();
         }
 
-        private void button_fileDB_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                openFileDialog1.Filter = "sqlite files (*.sqlite)|*.sqlite|All files (*.*)|*.*";
-                openFileDialog1.FilterIndex = 0;
-                if (textBox_DB.Text != "")
-                {
-                    openFileDialog1.InitialDirectory = Path.GetDirectoryName(textBox_DB.Text);
-                }
-                openFileDialog1.FileName = "";
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    textBox_DB.Text = openFileDialog1.FileName;
-                }
-
-                //collegamento al DB
-                string connectionString = "Data Source=" + textBox_DB.Text + ";Version=3;";
-                //string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=nolexDB;Trusted_Connection=True;";
-                connection = new SQLiteConnection(connectionString);
-
-                connection.Open();
-                //MessageBox.Show("Connessione al database SQLite riuscita!");
-
-
-                //button_filtra_Click(sender, e);
-
-                caricaeSelezionaAmbulatorio(sender, e);
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Errore durante la selezione del file: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-        }
-
-        private void FormMain_Load(object sender, EventArgs e)
-        {
-            /*
-            try
-            {
-                
-                string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=nolexDB;Trusted_Connection=True;";
-                connection = new SqlConnection(connectionString);
-
-                connection.Open();
-                //MessageBox.Show("Connessione al database SQLite riuscita!");
-
-                string query = "SELECT nome FROM ambulatori";
-                using (SqlCommand command = new SqlCommand(query, connection))
-                {                    
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        caricaAmbulatori(reader);
-                    }
-                }
-
-                // Seleziona il primo elemento se esiste
-                if (listBox_ambulatori.Items.Count > 0)
-                {
-                    listBox_ambulatori.SelectedIndex = 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Errore durante la selezione del file: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            */
-        }
-
         private string aggiungiFiltriEsami(string query)
         {
+            Log.Information("Entrato nel metodo: aggiungiFiltriEsami");
 
             if (textBox_filtraCI.Text != "")
             {
@@ -114,6 +80,8 @@ namespace test_NOLEX
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: listBox_ambulatori_SelectedValueChanged");
+
             if (listBox_ambulatori.Text != "")
             {
                 //filtro esami in base all'ambulatorio selezionato
@@ -154,6 +122,8 @@ namespace test_NOLEX
 
         private void listBox_partiCorpo_SelectedIndexChanged(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: listBox_partiCorpo_SelectedIndexChanged");
+
             if ((listBox_ambulatori.Text != "") && (listBox_partiCorpo.Text != ""))
             {
                 string query = "SELECT DescrizioneEsame, CodiceMinisteriale, CodiceInterno " +
@@ -179,6 +149,8 @@ namespace test_NOLEX
 
         private void caricaEsami(SQLiteDataReader reader)
         {
+            Log.Information("Entrato nel metodo: caricaEsami");
+
             listView_esami.View = View.Details;
             listView_esami.Columns.Clear();
             listView_esami.Columns.Add("Codice Interno", 100);
@@ -197,6 +169,8 @@ namespace test_NOLEX
 
         private void caricaPartiDelCorpo(SQLiteDataReader reader)
         {
+            Log.Information("Entrato nel metodo: caricaPartiDelCorpo");
+
             listBox_partiCorpo.Items.Clear();
             HashSet<string> descrizioniUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
             while (reader.Read())
@@ -212,6 +186,8 @@ namespace test_NOLEX
 
         private void caricaAmbulatori(SQLiteDataReader reader)
         {
+            Log.Information("Entrato nel metodo: caricaAmbulatori");
+
             listBox_ambulatori.Items.Clear();
             HashSet<string> nomiUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
 
@@ -230,6 +206,7 @@ namespace test_NOLEX
         {
             if (e.KeyCode == Keys.Enter)
             {
+                Log.Information("Entrato nel metodo: textBox_filtraCM_KeyDown");
                 button_filtra_Click(sender, e);
             }
         }
@@ -238,6 +215,7 @@ namespace test_NOLEX
         {
             if (e.KeyCode == Keys.Enter)
             {
+                Log.Information("Entrato nel metodo: textBox_filtraCI_KeyDown");
                 button_filtra_Click(sender, e);
             }
         }
@@ -246,12 +224,15 @@ namespace test_NOLEX
         {
             if (e.KeyCode == Keys.Enter)
             {
+                Log.Information("Entrato nel metodo: textBox_filtraDescrizione_KeyDown");
                 button_filtra_Click(sender, e);
             }
         }
 
         private void button_filtroReset_Click(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: button_filtroReset_Click");
+
             textBox_filtraCI.Text = "";
             textBox_filtraCM.Text = "";
             textBox_filtraDescrizione.Text = "";
@@ -270,6 +251,8 @@ namespace test_NOLEX
 
         private void listView_esami_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
+            Log.Information("Entrato nel metodo: listView_esami_ItemSelectionChanged");
+
             //deseleziono ambulatorio e parti del corpo altrimenti fanno parte del filtro
             listBox_ambulatori.ClearSelected();
             listBox_partiCorpo.ClearSelected();
@@ -278,6 +261,8 @@ namespace test_NOLEX
 
         private string CreaQuery()
         {
+            Log.Information("Entrato nel metodo: CreaQuery");
+
             string query = "SELECT CodiceInterno, CodiceMinisteriale, DescrizioneEsame, ambulatori.nome, particorpo.descrizione " +
                 "FROM esami, ambulatori_esami, ambulatori, particorpo " +
                 "WHERE esami.id = ambulatori_esami.esami_id " +
@@ -307,6 +292,8 @@ namespace test_NOLEX
 
         private void button_filtra_Click(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: button_filtra_Click");
+
             string query = CreaQuery();
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -362,11 +349,15 @@ namespace test_NOLEX
 
         private void button_resetAmbulatori_Click(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: button_resetAmbulatori_Click");
+
             caricaeSelezionaAmbulatorio(sender, e);
         }
 
         private void caricaeSelezionaAmbulatorio(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: caricaeSelezionaAmbulatorio");
+
             string query = "SELECT nome FROM ambulatori";
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
             {
@@ -385,6 +376,8 @@ namespace test_NOLEX
 
         private void button_prenotaEsame_Click(object sender, EventArgs e)
         {
+            Log.Information("Entrato nel metodo: button_prenotaEsame_Click");
+
             if (listBox_ambulatori.Text != "")
             {
                 foreach (ListViewItem item in listView_esami.Items)
@@ -405,6 +398,8 @@ namespace test_NOLEX
 
         private void dataGridView_prenotazioni_CellClick(object sender, DataGridViewCellEventArgs e)
         {
+            Log.Information("Entrato nel metodo: dataGridView_prenotazioni_CellClick");
+
             if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView_prenotazioni.Columns["Cancella"].Index)
             {
                 // Conferma la cancellazione
@@ -415,7 +410,7 @@ namespace test_NOLEX
                     dataGridView_prenotazioni.Rows.RemoveAt(e.RowIndex);
                 }
             }
-            else if(e.RowIndex >= 0 && e.ColumnIndex == dataGridView_prenotazioni.Columns["Modifica"].Index)
+            else if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView_prenotazioni.Columns["Modifica"].Index)
             {
                 if (listBox_ambulatori.Text != "")
                 {
@@ -428,19 +423,108 @@ namespace test_NOLEX
                             esamiSelezionati++;
                         }
                     }
-                    if (esamiSelezionati == 1) {
+                    if (esamiSelezionati == 1)
+                    {
                         // Modifica la cancellazione
                         dataGridView_prenotazioni.Rows[e.RowIndex].Cells["label"].Value =
                             listBox_ambulatori.Text + " - " + listView_esami.Items[0].SubItems[0].Text + "." + listView_esami.Items[0].SubItems[1].Text + "." + listView_esami.Items[0].SubItems[2].Text;
-                    } else
+                    }
+                    else
                     {
                         MessageBox.Show($"Devi selezionare un Esame", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                } else
+                }
+                else
                 {
                     MessageBox.Show($"Devi selezionare un Ambulatorio", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
+
+        private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Log.CloseAndFlush();
+        }
+
+        private void button_confermaPrenotazione_Click(object sender, EventArgs e)
+        {
+            Log.Information("Entrato nel metodo: button_confermaPrenotazione_Click");
+                        
+            caricaeSelezionaAmbulatorio(sender, e);
+            listBox_partiCorpo.ClearSelected();
+            listView_esami.SelectedItems.Clear();
+            foreach (ListViewItem item in listView_esami.Items)
+            {
+                item.Checked = false; // Deseleziona il checkbox
+            }
+            textBox_filtraCM.Text = "";
+            textBox_filtraCI.Text = "";
+            textBox_filtraDescrizione.Text = "";
+            dataGridView_prenotazioni.Rows.Clear();
+            MessageBox.Show($"Le prenotazioni sono state registrate regolarmente", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        }
+
+        private void button_salvaRicerca_Click(object sender, EventArgs e)
+        {
+            Log.Information("Entrato nel metodo: button_salvaRicerca_Click");
+
+            Predefiniti_Ricerca.Ambulatorio = listBox_ambulatori.Text;
+            Predefiniti_Ricerca.PartiCorpo = listBox_partiCorpo.Text;
+            if (listView_esami.SelectedItems.Count == 1)
+            {
+                Predefiniti_Ricerca.Esame = listView_esami.SelectedItems[0].SubItems[0].Text;
+            }
+            else
+            {
+                Predefiniti_Ricerca.Esame = "";
+            }
+
+            Predefiniti_Ricerca.FiltroCI = textBox_filtraCI.Text;
+            Predefiniti_Ricerca.FiltroCM = textBox_filtraCM.Text;
+            Predefiniti_Ricerca.FiltroDescrizione = textBox_filtraDescrizione.Text;
+
+            //Salve file config.ini
+            string iniFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
+            if (IniFile.SaveIniFile(iniFilePath))
+            {
+                MessageBox.Show("File di configurazione salvato correttamente.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            else
+            {
+                MessageBox.Show("Errore nel salvataggio del file di configurazione.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void button_getRicerca_Click(object sender, EventArgs e)
+        {
+            Log.Information("Entrato nel metodo: button_getRicerca_Click");
+
+            listBox_ambulatori.Text = Predefiniti_Ricerca.Ambulatorio;
+            listBox_partiCorpo.Text = Predefiniti_Ricerca.PartiCorpo;
+
+            if (string.IsNullOrEmpty(Predefiniti_Ricerca.Esame))
+            {
+
+                listView_esami.SelectedItems.Clear();
+            }
+            else
+            {
+                foreach (ListViewItem item in listView_esami.Items)
+                {
+                    if (item.SubItems[0].Text == Predefiniti_Ricerca.Esame)
+                    {
+                        item.Selected = true; // Seleziona l'elemento
+                        item.EnsureVisible(); // Scorri per rendere visibile l'elemento selezionato
+                        break;
+                    }
+                }
+            }
+            textBox_filtraCI.Text = Predefiniti_Ricerca.FiltroCI;
+            textBox_filtraCM.Text = Predefiniti_Ricerca.FiltroCM;
+            textBox_filtraDescrizione.Text = Predefiniti_Ricerca.FiltroDescrizione;
+        }
     }
+
+
 }

@@ -44,8 +44,10 @@ Gli esami visualizzati nell'ultimo pannello dovranno comunque sempre rispettare 
 Nel form è presente anche una griglia in cui verranno inseriti man mano, con tutte le proprietà, gli esami scelti tramite il pulsante di conferma scelta.
 Vi devono essere dei pulsanti di cancellazione della riga e di modifica dell'ordine di visualizzazione delle righe.
 
-Nell'ipotesi di future estensioni del programma, deve essere previsto il caricamento, se presente nella cartella del programma, di un file di
-configurazione con estensione .ini avente una struttura a sezioni, in cui ogni sezione è contraddistinta da un nome tra parentesi quadre (es. [sezione1]).
+Nell'ipotesi di future estensioni del programma, deve essere previsto il caricamento, se presente nella cartella del programma,
+di un file di
+configurazione con estensione .ini avente una struttura a sezioni, in cui ogni sezione è contraddistinta da un nome tra
+parentesi quadre (es. [sezione1]).
 I vari settaggi sono delle linee di testo sotto ogni sezione, nella forma:
 nomevar = valore.
 I valori potranno essere di vari tipi, numeri o stringhe.
@@ -72,16 +74,24 @@ DCMColPrintProcessServerAdditionalOptions = ""
 DCMBNPrintProcessServerAdditionalOptions = ""
 
 
-Ogni sezione nel file .ini corrisponderà, nel programma, ad una classe statica avente per nome la stringa "Predefiniti_" seguita dal nome della sezione.
-Queste classe statiche, contenenti solo proprietà, conterranno i valori di default necessari per le varie sezioni o funzioni del programma.
+Ogni sezione nel file .ini corrisponderà, nel programma, ad una classe statica avente per nome la stringa 
+"Predefiniti_" seguita dal nome della sezione.
+Queste classe statiche, contenenti solo proprietà, conterranno i valori di default necessari per le varie sezioni 
+o funzioni del programma.
 Il codice nel programma referenzierà quindi direttamente queste proprietà per i valori iniziali del suo funzionamento.
-I valori nel file di configurazione inizializzeranno le proprietà nelle classi statiche aventi corrispondente nome sezione e nomevar.
-Se una proprietà non ha una corrispondente linea di inizializzazione nel file .ini, essa manterrà il valore con cui è stata dichiarata nella classe statica.
-Il codice che effettua il caricamento ed assegnazione di tutti questi valori deve essere indipendente sia dal nome delle proprietà che da quello delle sezioni, in modo che la sole cose che si debbano fare nel caso siano necessarie nuove inizializzazioni per nuove sezioni del programma siano quelle di creare le classi statiche con le varie proprietà e l'inserimento dei valori di inizializzazione nel file .ini sotto la sezione corretta.
+I valori nel file di configurazione inizializzeranno le proprietà nelle classi statiche aventi corrispondente 
+nome sezione e nomevar.
+Se una proprietà non ha una corrispondente linea di inizializzazione nel file .ini, essa manterrà il valore con 
+cui è stata dichiarata nella classe statica.
+Il codice che effettua il caricamento ed assegnazione di tutti questi valori deve essere indipendente sia dal nome delle 
+proprietà che da quello delle sezioni, in modo che la sole cose che si debbano fare nel caso siano necessarie nuove 
+inizializzazioni per nuove sezioni del programma siano quelle di creare le classi statiche con le varie proprietà e 
+l'inserimento dei valori di inizializzazione nel file .ini sotto la sezione corretta.
 Deve essere effettuata una verifica di congruità del tipo per ogni stringa di configurazione.
 Le stringhe di inizializzazione non riconosciute devono essere ignorate.
 
-Il programma, usando il file di configurazione sopra descritto, deve prevedere la possibilità di settare una ricerca predefinita e un tipo di ricerca predefinita tra quelle sopra descritte
+Il programma, usando il file di configurazione sopra descritto, deve prevedere la possibilità di settare una ricerca 
+predefinita e un tipo di ricerca predefinita tra quelle sopra descritte
 
 
 
