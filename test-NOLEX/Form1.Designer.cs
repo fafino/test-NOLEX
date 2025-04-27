@@ -124,7 +124,7 @@
             // 
             // button_prenotaEsame
             // 
-            button_prenotaEsame.Location = new Point(570, 392);
+            button_prenotaEsame.Location = new Point(570, 402);
             button_prenotaEsame.Margin = new Padding(3, 2, 3, 2);
             button_prenotaEsame.Name = "button_prenotaEsame";
             button_prenotaEsame.Size = new Size(214, 22);
@@ -144,6 +144,10 @@
             listView_esami.TabIndex = 12;
             listView_esami.UseCompatibleStateImageBehavior = false;
             listView_esami.ItemSelectionChanged += listView_esami_ItemSelectionChanged;
+            // 
+            // DescrizioneEsame
+            // 
+            DescrizioneEsame.Width = 100;
             // 
             // groupBox1
             // 
@@ -166,7 +170,7 @@
             // 
             // button_filtroReset
             // 
-            button_filtroReset.Location = new Point(139, 141);
+            button_filtroReset.Location = new Point(139, 150);
             button_filtroReset.Margin = new Padding(3, 2, 3, 2);
             button_filtroReset.Name = "button_filtroReset";
             button_filtroReset.Size = new Size(151, 22);
@@ -177,7 +181,7 @@
             // 
             // button_filtraDescrizione
             // 
-            button_filtraDescrizione.Location = new Point(202, 107);
+            button_filtraDescrizione.Location = new Point(202, 116);
             button_filtraDescrizione.Margin = new Padding(3, 2, 3, 2);
             button_filtraDescrizione.Name = "button_filtraDescrizione";
             button_filtraDescrizione.Size = new Size(88, 20);
@@ -189,7 +193,7 @@
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(40, 78);
+            label7.Location = new Point(40, 87);
             label7.Name = "label7";
             label7.Size = new Size(156, 15);
             label7.TabIndex = 23;
@@ -198,7 +202,7 @@
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(59, 48);
+            label6.Location = new Point(59, 57);
             label6.Name = "label6";
             label6.Size = new Size(137, 15);
             label6.TabIndex = 22;
@@ -207,7 +211,7 @@
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(36, 13);
+            label5.Location = new Point(36, 22);
             label5.Name = "label5";
             label5.Size = new Size(160, 15);
             label5.TabIndex = 21;
@@ -215,7 +219,7 @@
             // 
             // textBox_filtraDescrizione
             // 
-            textBox_filtraDescrizione.Location = new Point(202, 75);
+            textBox_filtraDescrizione.Location = new Point(202, 84);
             textBox_filtraDescrizione.Margin = new Padding(3, 2, 3, 2);
             textBox_filtraDescrizione.Name = "textBox_filtraDescrizione";
             textBox_filtraDescrizione.Size = new Size(88, 23);
@@ -224,7 +228,7 @@
             // 
             // textBox_filtraCI
             // 
-            textBox_filtraCI.Location = new Point(202, 45);
+            textBox_filtraCI.Location = new Point(202, 54);
             textBox_filtraCI.Margin = new Padding(3, 2, 3, 2);
             textBox_filtraCI.Name = "textBox_filtraCI";
             textBox_filtraCI.Size = new Size(88, 23);
@@ -233,7 +237,7 @@
             // 
             // textBox_filtraCM
             // 
-            textBox_filtraCM.Location = new Point(202, 10);
+            textBox_filtraCM.Location = new Point(202, 19);
             textBox_filtraCM.Margin = new Padding(3, 2, 3, 2);
             textBox_filtraCM.Name = "textBox_filtraCM";
             textBox_filtraCM.Size = new Size(88, 23);
@@ -242,7 +246,7 @@
             // 
             // button_resetAmbulatori
             // 
-            button_resetAmbulatori.Location = new Point(13, 392);
+            button_resetAmbulatori.Location = new Point(13, 400);
             button_resetAmbulatori.Margin = new Padding(3, 2, 3, 2);
             button_resetAmbulatori.Name = "button_resetAmbulatori";
             button_resetAmbulatori.Size = new Size(243, 22);
@@ -255,9 +259,9 @@
             // 
             dataGridView_prenotazioni.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView_prenotazioni.Columns.AddRange(new DataGridViewColumn[] { label, Cancella, Modifica });
-            dataGridView_prenotazioni.Location = new Point(570, 419);
+            dataGridView_prenotazioni.Location = new Point(570, 433);
             dataGridView_prenotazioni.Name = "dataGridView_prenotazioni";
-            dataGridView_prenotazioni.Size = new Size(504, 211);
+            dataGridView_prenotazioni.Size = new Size(504, 197);
             dataGridView_prenotazioni.TabIndex = 32;
             dataGridView_prenotazioni.CellClick += dataGridView_prenotazioni_CellClick;
             // 
@@ -287,7 +291,7 @@
             // 
             // button_confermaPrenotazione
             // 
-            button_confermaPrenotazione.Location = new Point(902, 390);
+            button_confermaPrenotazione.Location = new Point(902, 400);
             button_confermaPrenotazione.Name = "button_confermaPrenotazione";
             button_confermaPrenotazione.Size = new Size(172, 23);
             button_confermaPrenotazione.TabIndex = 33;
@@ -298,7 +302,7 @@
             // label8
             // 
             label8.AutoSize = true;
-            label8.Location = new Point(13, 433);
+            label8.Location = new Point(13, 441);
             label8.Name = "label8";
             label8.Size = new Size(85, 15);
             label8.TabIndex = 36;
@@ -307,7 +311,7 @@
             // button_salvaRicerca
             // 
             button_salvaRicerca.Image = Properties.Resources.save_16;
-            button_salvaRicerca.Location = new Point(141, 425);
+            button_salvaRicerca.Location = new Point(141, 433);
             button_salvaRicerca.Name = "button_salvaRicerca";
             button_salvaRicerca.Size = new Size(30, 30);
             button_salvaRicerca.TabIndex = 37;
@@ -317,7 +321,7 @@
             // button_getRicerca
             // 
             button_getRicerca.Image = Properties.Resources.arrow_204_16;
-            button_getRicerca.Location = new Point(105, 425);
+            button_getRicerca.Location = new Point(105, 433);
             button_getRicerca.Name = "button_getRicerca";
             button_getRicerca.Size = new Size(30, 30);
             button_getRicerca.TabIndex = 38;

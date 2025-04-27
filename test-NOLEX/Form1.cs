@@ -19,7 +19,7 @@ namespace test_NOLEX
 
             // Inizializza il logger
             Log.Logger = new LoggerConfiguration()
-                //.MinimumLevel.Debug()
+                .MinimumLevel.Debug()
                 //.WriteTo.Console()
                 .WriteTo.File("test_NOLEX.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
@@ -27,6 +27,9 @@ namespace test_NOLEX
 
         private void FormMain_Load(object sender, EventArgs e)
         {
+            Log.Information("########################################");
+            Log.Debug("Entrato nel metodo: FormMain_Load");
+
             //collegamento al DB
             string connectionString = "Data Source=" + Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "database.sqlite") + ";Version=3;";
             //string connectionString = @"Server=(localdb)\MSSQLLocalDB;Database=nolexDB;Trusted_Connection=True;";
@@ -34,10 +37,8 @@ namespace test_NOLEX
 
             connection.Open();
             //MessageBox.Show("Connessione al database SQLite riuscita!");
-            //button_filtra_Click(sender, e);
 
             caricaeSelezionaAmbulatorio(sender, e);
-
 
             //Carica file config.ini
             string iniFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
@@ -53,12 +54,14 @@ namespace test_NOLEX
 
         private void buttonChiudi_Click(object sender, EventArgs e)
         {
+            Log.Debug("Entrato nel metodo: buttonChiudi_Click");
+
             System.Windows.Forms.Application.Exit();
         }
 
         private string aggiungiFiltriEsami(string query)
         {
-            Log.Information("Entrato nel metodo: aggiungiFiltriEsami");
+            Log.Debug("Entrato nel metodo: aggiungiFiltriEsami");
 
             if (textBox_filtraCI.Text != "")
             {
@@ -80,7 +83,7 @@ namespace test_NOLEX
 
         private void listBox_ambulatori_SelectedValueChanged(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: listBox_ambulatori_SelectedValueChanged");
+            Log.Debug("Entrato nel metodo: listBox_ambulatori_SelectedValueChanged");
 
             if (listBox_ambulatori.Text != "")
             {
@@ -122,7 +125,7 @@ namespace test_NOLEX
 
         private void listBox_partiCorpo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: listBox_partiCorpo_SelectedIndexChanged");
+            Log.Debug("Entrato nel metodo: listBox_partiCorpo_SelectedIndexChanged");
 
             if ((listBox_ambulatori.Text != "") && (listBox_partiCorpo.Text != ""))
             {
@@ -149,7 +152,7 @@ namespace test_NOLEX
 
         private void caricaEsami(SQLiteDataReader reader)
         {
-            Log.Information("Entrato nel metodo: caricaEsami");
+            Log.Debug("Entrato nel metodo: caricaEsami");
 
             listView_esami.View = View.Details;
             listView_esami.Columns.Clear();
@@ -169,7 +172,7 @@ namespace test_NOLEX
 
         private void caricaPartiDelCorpo(SQLiteDataReader reader)
         {
-            Log.Information("Entrato nel metodo: caricaPartiDelCorpo");
+            Log.Debug("Entrato nel metodo: caricaPartiDelCorpo");
 
             listBox_partiCorpo.Items.Clear();
             HashSet<string> descrizioniUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
@@ -186,7 +189,7 @@ namespace test_NOLEX
 
         private void caricaAmbulatori(SQLiteDataReader reader)
         {
-            Log.Information("Entrato nel metodo: caricaAmbulatori");
+            Log.Debug("Entrato nel metodo: caricaAmbulatori");
 
             listBox_ambulatori.Items.Clear();
             HashSet<string> nomiUnici = new HashSet<string>(); // Per tenere traccia dei valori unici
@@ -206,7 +209,7 @@ namespace test_NOLEX
         {
             if (e.KeyCode == Keys.Enter)
             {
-                Log.Information("Entrato nel metodo: textBox_filtraCM_KeyDown");
+                Log.Debug("Entrato nel metodo: textBox_filtraCM_KeyDown");
                 button_filtra_Click(sender, e);
             }
         }
@@ -215,7 +218,7 @@ namespace test_NOLEX
         {
             if (e.KeyCode == Keys.Enter)
             {
-                Log.Information("Entrato nel metodo: textBox_filtraCI_KeyDown");
+                Log.Debug("Entrato nel metodo: textBox_filtraCI_KeyDown");
                 button_filtra_Click(sender, e);
             }
         }
@@ -224,14 +227,18 @@ namespace test_NOLEX
         {
             if (e.KeyCode == Keys.Enter)
             {
-                Log.Information("Entrato nel metodo: textBox_filtraDescrizione_KeyDown");
+                Log.Debug("Entrato nel metodo: textBox_filtraDescrizione_KeyDown");
                 button_filtra_Click(sender, e);
             }
         }
 
         private void button_filtroReset_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_filtroReset_Click");
+            Log.Debug("Entrato nel metodo: button_filtroReset_Click");
+
+            //deseleziono ambulatorio e parti del corpo altrimenti fanno parte del filtro
+            listBox_ambulatori.ClearSelected();
+            listBox_partiCorpo.ClearSelected();
 
             textBox_filtraCI.Text = "";
             textBox_filtraCM.Text = "";
@@ -251,7 +258,7 @@ namespace test_NOLEX
 
         private void listView_esami_ItemSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
         {
-            Log.Information("Entrato nel metodo: listView_esami_ItemSelectionChanged");
+            Log.Debug("Entrato nel metodo: listView_esami_ItemSelectionChanged");
 
             //deseleziono ambulatorio e parti del corpo altrimenti fanno parte del filtro
             listBox_ambulatori.ClearSelected();
@@ -259,14 +266,18 @@ namespace test_NOLEX
             button_filtra_Click(sender, e);
         }
 
+        /**
+         * Crea la query per filtrare gli esami in base agli ambulatori e alle parti del corpo selezionate.
+         * Se non sono selezionati, non vengono applicati filtri.
+         */
         private string CreaQuery()
         {
-            Log.Information("Entrato nel metodo: CreaQuery");
+            Log.Debug("Entrato nel metodo: CreaQuery");
 
             string query = "SELECT CodiceInterno, CodiceMinisteriale, DescrizioneEsame, ambulatori.nome, particorpo.descrizione " +
                 "FROM esami, ambulatori_esami, ambulatori, particorpo " +
                 "WHERE esami.id = ambulatori_esami.esami_id " +
-                "AND ambulatori.id = ambulatori_esami.ambulatori_id " +
+                "AND ambulatori_esami.ambulatori_id = ambulatori.id " +
                 "AND esami.particorpo_id = particorpo.id ";
             if (listBox_ambulatori.SelectedItem != null)
             {
@@ -292,8 +303,11 @@ namespace test_NOLEX
 
         private void button_filtra_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_filtra_Click");
+            Log.Debug("Entrato nel metodo: button_filtra_Click");
 
+            // Deseleziona gli ambulatori e le parti del corpo
+            listBox_ambulatori.ClearSelected();
+            listBox_partiCorpo.ClearSelected();
             string query = CreaQuery();
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -349,14 +363,14 @@ namespace test_NOLEX
 
         private void button_resetAmbulatori_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_resetAmbulatori_Click");
+            Log.Debug("Entrato nel metodo: button_resetAmbulatori_Click");
 
             caricaeSelezionaAmbulatorio(sender, e);
         }
 
         private void caricaeSelezionaAmbulatorio(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: caricaeSelezionaAmbulatorio");
+            Log.Debug("Entrato nel metodo: caricaeSelezionaAmbulatorio");
 
             string query = "SELECT nome FROM ambulatori";
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
@@ -376,7 +390,7 @@ namespace test_NOLEX
 
         private void button_prenotaEsame_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_prenotaEsame_Click");
+            Log.Debug("Entrato nel metodo: button_prenotaEsame_Click");
 
             if (listBox_ambulatori.Text != "")
             {
@@ -398,7 +412,7 @@ namespace test_NOLEX
 
         private void dataGridView_prenotazioni_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            Log.Information("Entrato nel metodo: dataGridView_prenotazioni_CellClick");
+            Log.Debug("Entrato nel metodo: dataGridView_prenotazioni_CellClick");
 
             if (e.RowIndex >= 0 && e.ColumnIndex == dataGridView_prenotazioni.Columns["Cancella"].Index)
             {
@@ -443,12 +457,14 @@ namespace test_NOLEX
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Log.Debug("Entrato nel metodo: FormMain_FormClosing");
+
             Log.CloseAndFlush();
         }
 
         private void button_confermaPrenotazione_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_confermaPrenotazione_Click");
+            Log.Debug("Entrato nel metodo: button_confermaPrenotazione_Click");
                         
             caricaeSelezionaAmbulatorio(sender, e);
             listBox_partiCorpo.ClearSelected();
@@ -467,7 +483,7 @@ namespace test_NOLEX
 
         private void button_salvaRicerca_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_salvaRicerca_Click");
+            Log.Debug("Entrato nel metodo: button_salvaRicerca_Click");
 
             Predefiniti_Ricerca.Ambulatorio = listBox_ambulatori.Text;
             Predefiniti_Ricerca.PartiCorpo = listBox_partiCorpo.Text;
@@ -498,7 +514,7 @@ namespace test_NOLEX
 
         private void button_getRicerca_Click(object sender, EventArgs e)
         {
-            Log.Information("Entrato nel metodo: button_getRicerca_Click");
+            Log.Debug("Entrato nel metodo: button_getRicerca_Click");
 
             listBox_ambulatori.Text = Predefiniti_Ricerca.Ambulatorio;
             listBox_partiCorpo.Text = Predefiniti_Ricerca.PartiCorpo;
