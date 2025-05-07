@@ -43,7 +43,7 @@ namespace test_NOLEX
             //Carica file config.ini
             string iniFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
             if (IniFile.LoadIniFile(iniFilePath))
-            {             
+            {
                 //MessageBox.Show("File di configurazione caricato correttamente.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
@@ -465,7 +465,7 @@ namespace test_NOLEX
         private void button_confermaPrenotazione_Click(object sender, EventArgs e)
         {
             Log.Debug("Entrato nel metodo: button_confermaPrenotazione_Click");
-                        
+
             caricaeSelezionaAmbulatorio(sender, e);
             listBox_partiCorpo.ClearSelected();
             listView_esami.SelectedItems.Clear();
@@ -540,6 +540,8 @@ namespace test_NOLEX
             textBox_filtraCM.Text = Predefiniti_Ricerca.FiltroCM;
             textBox_filtraDescrizione.Text = Predefiniti_Ricerca.FiltroDescrizione;
         }
+
+
     }
 
 
