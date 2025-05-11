@@ -51,13 +51,13 @@ public static class IniFile
                         {
                             value = value.Trim('"');
                             // Applica il valore alla classe statica corrispondente
-                            ApplyValueToSection(currentSection, key, value);
+                            CaricaValoreIni(currentSection, key, value);
                         }
                         else if (int.TryParse(value, out int intValue))
                         {
                             value = intValue.ToString(); // Converte il valore in stringa
                                                          // Applica il valore alla classe statica corrispondente
-                            ApplyValueToSection(currentSection, key, value);
+                            CaricaValoreIni(currentSection, key, value);
                         }
                     }
                 }
@@ -72,7 +72,7 @@ public static class IniFile
         }
     }
 
-    private static void ApplyValueToSection(string section, string key, string value)
+    private static void CaricaValoreIni(string section, string key, string value)
     {
         // Usa reflection per trovare la classe statica corrispondente
         var sectionType = Type.GetType($"test_NOLEX.Predefiniti_{section}");
