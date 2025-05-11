@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "test-NOLEX": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

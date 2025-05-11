@@ -20,7 +20,8 @@ Gli esami hanno come attibuti:
 
 Gli esami sono legati ad uno o più ambulatori e ad una singola parte del corpo (es. "Eco Addome" può essere effettuato sia nell'ambulatorio "EcografiaPrivitera" che in "EcografiaMassimino").
 
-Per il test il candidato inventerà i dati necessari per l'esecuzione del programma finale. La quantità dei dati non è importante, se non per valutare la completezza e la corretta esecuzione. Naturalmente la corretta esecuzione del programma non dovrà 
+Per il test il candidato inventerà i dati necessari per l'esecuzione del programma finale. La quantità dei dati non è importante, se non per valutare la completezza e la corretta esecuzione. Naturalmente la corretta 
+esecuzione del programma non dovrà 
 dipendere dalla quantità di dati presenti.
 
 I dati dovranno essere gestiti in ambiente SQL Server (di qualunque tipo, purchè alla fine importabile in qualche modo in MS SQL Server).
@@ -28,7 +29,8 @@ I dati dovranno essere gestiti in ambiente SQL Server (di qualunque tipo, purch�
 Il programma dovrà essere realizzato utilizzando C#, Winforms, NET 4.5 o superiore, Visual Studio 2017 o superiore.
 Il programma dovrà essere poi convertito per il funzionamento web in .Net Core MVC
 
-L'interfaccia del programma consisterà in un form contenente tre pannelli affiancati, il primo per gli ambulatori, il secondo, a destra del primo, per le parti del corpo, ed il terzo, ancora più a destra, per gli esami. Un pulsante permetterà poi 
+L'interfaccia del programma consisterà in un form contenente tre pannelli affiancati, il primo per gli ambulatori, il secondo, a destra del primo, per le parti del corpo, ed il terzo, ancora più a destra, per gli esami.
+Un pulsante permetterà poi 
 di confermare la scelta di selezione di un esame.
 La selezione dell'ambulatorio comporta la visualizzazione della lista di tutte le parti del corpo legate agli esami presenti nell'ambulatorio selezionato.
 La selezione della parte del corpo comporta la visualizzazione di tutti gli esami appartenenti all'ambulatorio selezionato e alla parte del corpo scelta.
@@ -39,7 +41,8 @@ destra di quello contenente l'elemento selezionato, considerando selezionatoil p
 
 Il form contiene anche un pannello per effettuare una ricerca testuale case insensitive sugli esami. Occorre dare la possibilità di scegliere se cercare in "codiceMinisteriale", "CodiceInterno" o "DescrizioneEsame". 
 La ricerca dovrà essere effettuata sia sul campo complessivo che su parte di esso.
-L'avvio alla ricerca avverrà tramite pulsante apposito o pressione del tasto Invio mentre si scrive la stringa cercata. Il risultato della ricerca deve essere riportato nel contenuto dei tre pannelli, permettendo la navigazione nei soli esami che 
+L'avvio alla ricerca avverrà tramite pulsante apposito o pressione del tasto Invio mentre si scrive la stringa cercata. Il risultato della ricerca deve essere riportato nel contenuto dei tre pannelli, permettendo 
+la navigazione nei soli esami che 
 soddifano la ricerca. Inserire anche un tasto di reset "Vedi tutti".
 
 Effettuata la ricerca verranno visualizzati solo gli ambulatori e parti del corpo che contengono esami compresi tra quelli risultanti dalla ricerca stessa.

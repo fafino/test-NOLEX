@@ -21,7 +21,7 @@ namespace test_NOLEX
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 //.WriteTo.Console()
-                .WriteTo.File("test_NOLEX.log", rollingInterval: RollingInterval.Day)
+                .WriteTo.File("test_NOLEX.log", rollingInterval: RollingInterval.Month)
                 .CreateLogger();
         }
 
@@ -392,22 +392,26 @@ namespace test_NOLEX
         {
             Log.Debug("Entrato nel metodo: button_prenotaEsame_Click");
 
-            if (listBox_ambulatori.Text != "")
-            {
-                foreach (ListViewItem item in listView_esami.Items)
-                {
-                    if (item.Checked) // Controlla se il checkbox è selezionato
-                    {
-                        // Aggiungi una nuova riga alla DataGridView con i dati della ListView
-                        dataGridView_prenotazioni.Rows.Add(
-                            listBox_ambulatori.Text + " - " + item.SubItems[0].Text + "." + item.SubItems[1].Text + "." + item.SubItems[2].Text);
-                    }
-                }
-            }
-            else
+            if (listBox_ambulatori.Text == "")
             {
                 MessageBox.Show($"Devi selezionare un Ambulatorio", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
+            if (listView_esami.CheckedItems.Count == 0)
+            {
+                MessageBox.Show($"Devi selezionare almeno un Esame", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            foreach (ListViewItem item in listView_esami.Items)
+            {
+                if (item.Checked) // Controlla se il checkbox è selezionato
+                {
+                    // Aggiungi una nuova riga alla DataGridView con i dati della ListView
+                    dataGridView_prenotazioni.Rows.Add(
+                        listBox_ambulatori.Text + " - " + item.SubItems[0].Text + "." + item.SubItems[1].Text + "." + item.SubItems[2].Text);
+                }
+            }                   
+                
         }
 
         private void dataGridView_prenotazioni_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -428,24 +432,15 @@ namespace test_NOLEX
             {
                 if (listBox_ambulatori.Text != "")
                 {
-                    // Controlla se almeno un elemento della ListView ha il checkbox selezionato
-                    int esamiSelezionati = 0;
-                    foreach (ListViewItem item in listView_esami.Items)
-                    {
-                        if (item.Checked)
-                        {
-                            esamiSelezionati++;
-                        }
-                    }
-                    if (esamiSelezionati == 1)
+                    if (listView_esami.CheckedItems.Count == 1)
                     {
                         // Modifica la cancellazione
                         dataGridView_prenotazioni.Rows[e.RowIndex].Cells["label"].Value =
-                            listBox_ambulatori.Text + " - " + listView_esami.Items[0].SubItems[0].Text + "." + listView_esami.Items[0].SubItems[1].Text + "." + listView_esami.Items[0].SubItems[2].Text;
+                            listBox_ambulatori.Text + " - " + listView_esami.CheckedItems[0].SubItems[0].Text + "." + listView_esami.CheckedItems[0].SubItems[1].Text + "." + listView_esami.CheckedItems[0].SubItems[2].Text;
                     }
                     else
                     {
-                        MessageBox.Show($"Devi selezionare un Esame", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show($"Devi selezionare un solo Esame", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
                 else
